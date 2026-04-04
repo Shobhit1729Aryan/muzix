@@ -274,7 +274,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       setRoomError('Could not load room details.')
     })
     const host = window.location.hostname || 'localhost'
-    const ws = new WebSocket(`ws://${host}:3001`)
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `ws://${host}:3001`
+    const ws = new WebSocket(wsUrl)
     wsRef.current = ws
     ws.addEventListener('open', () => {
       setSocketStatus('connected')

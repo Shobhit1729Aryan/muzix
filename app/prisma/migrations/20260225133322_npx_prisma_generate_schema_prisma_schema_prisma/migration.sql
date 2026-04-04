@@ -1,0 +1,1 @@
+-- Legacy SQLite migration retained as a no-op after switching the project to PostgreSQL.

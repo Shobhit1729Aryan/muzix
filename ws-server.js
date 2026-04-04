@@ -2,17 +2,14 @@ require('dotenv').config();
 const WebSocket = require('ws');
 const crypto = require('crypto');
 const { PrismaClient } = require('./app/generated/prisma');
-const { PrismaBetterSQLite3 } = require('@prisma/adapter-better-sqlite3');
 
-const dbUrl = process.env.DATABASE_URL || 'file:C:/Users/shobh/AppData/Local/muzix-data/dev.db';
-const sqliteAdapter = new PrismaBetterSQLite3({ url: dbUrl }, {});
-const prisma = new PrismaClient({ adapter: sqliteAdapter });
-const PORT = process.env.WS_PORT || 3001;
+const prisma = new PrismaClient();
+const PORT = process.env.PORT || process.env.WS_PORT || 3001;
 const WS_TOKEN_SECRET = process.env.WS_TOKEN_SECRET || process.env.NEXTAUTH_SECRET || 'dev_secret';
 const roomPlaybackState = new Map();
 
 const wss = new WebSocket.Server({ port: PORT }, () => {
-  console.log(`WebSocket server listening on ws://localhost:${PORT}`);
+  console.log(`WebSocket server listening on port ${PORT}`);
 });
 
 wss.on('error', (error) => {

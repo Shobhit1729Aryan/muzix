@@ -4,6 +4,6 @@ const { defineConfig } = require("prisma/config");
 module.exports = defineConfig({
   schema: "prisma/schema.prisma",
   datasource: {
-    url: process.env.DATABASE_URL || "file:C:/Users/shobh/AppData/Local/muzix-data/dev.db",
+    url: process.env.DATABASE_URL,
   },
 });
