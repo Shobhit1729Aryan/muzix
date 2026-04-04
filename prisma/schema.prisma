@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String
+  provider      Provider
+  streams       Stream[]
+  upvotes       Upvote[]
+  videoVotes    VideoVote[]
+  roomUsers     RoomUser[]
+  roomSongVotes RoomSongVote[]
+  hostedRooms   Room[]
+  chatMessages  ChatMessage[]
+}
+
+model Stream {
+  id          String     @id @default(uuid())
+  type        StreamType
+  url         String
+  extractedId String
+  title       String
+  smallImg    String
+  bigImg      String
+  active      Boolean    @default(true)
+  upvotes     Upvote[]
+  videos      Video[]
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Upvote {
+  id       String @id @default(uuid())
+  userId   String
+  streamId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  stream Stream @relation(fields: [streamId], references: [id])
+
+  @@unique([userId, streamId])
+}
+
+model Video {
+  id        String @id
+  title     String
+  thumbnail String
+  url       String
+  votes     Int    @default(0)
+
+  streamId String
+  stream   Stream @relation(fields: [streamId], references: [id])
+
+  votesRel VideoVote[]
+}
+
+model VideoVote {
+  id      String @id @default(uuid())
+  userId  String
+  videoId String
+  vote    Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  video Video @relation(fields: [videoId], references: [id])
+
+  @@unique([userId, videoId])
+}
+
+model Room {
+  id        String     @id @default(uuid())
+  code      String     @unique
+  password  String?
+  hostId    String
+  createdAt DateTime   @default(now())
+  users     RoomUser[]
+  songs     RoomSong[]
+  chats     ChatMessage[]
+
+  host User @relation(fields: [hostId], references: [id])
+}
+
+model RoomUser {
+  id     String @id @default(uuid())
+  roomId String
+  userId String
+
+  room Room @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model RoomSong {
+  id        String   @id
+  roomId    String
+  title     String
+  thumbnail String
+  url       String
+  votes     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  room     Room           @relation(fields: [roomId], references: [id])
+  votesRel RoomSongVote[]
+}
+
+model RoomSongVote {
+  id     String @id @default(uuid())
+  userId String
+  songId String
+  vote   Int
+
+  user User     @relation(fields: [userId], references: [id])
+  song RoomSong @relation(fields: [songId], references: [id])
+
+  @@unique([userId, songId])
+}
+
+model ChatMessage {
+  id          String   @id @default(uuid())
+  roomId       String
+  senderId     String
+  senderLabel  String
+  ciphertext   String
+  iv           String
+  createdAt    DateTime @default(now())
+
+  room   Room @relation(fields: [roomId], references: [id])
+  sender User @relation(fields: [senderId], references: [id])
+
+  @@index([roomId, createdAt])
+}
+
+enum StreamType {
+  Spotify
+  Youtube
+}
+
+enum Provider {
+  Google
+}
