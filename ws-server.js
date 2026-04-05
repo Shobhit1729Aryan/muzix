@@ -1,7 +1,7 @@
 require('dotenv').config();
 const WebSocket = require('ws');
 const crypto = require('crypto');
-const { PrismaClient } = require('./app/generated/prisma');
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || process.env.WS_PORT || 3001;
